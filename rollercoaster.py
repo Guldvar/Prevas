@@ -3,7 +3,7 @@ import random
 
 class Rollercoaster:
 
-    def __init__(self, points = 10):
+    def __init__(self, points = 5000):
         self.points = [1] * points
 
     def update(self):
@@ -17,7 +17,7 @@ class Rollercoaster:
                 newPoint = 0
             elif r < 0.60:
                 newPoint = curPoint
-            elif (r < 0.80 and curPoint != 1) or curPoint == 3:
+            elif (r < 0.80 and curPoint != 1) or curPoint == 10:
                 newPoint = curPoint - 1
             else:
                 newPoint = curPoint + 1

@@ -366,7 +366,7 @@ class Game:
             self.state_time = 0.0
 
         self.coaster_timer += dt
-        if(self.coaster_timer > 1):
+        if(self.coaster_timer > 0.5):
             self.coaster.update()
             print(self.coaster_timer)
             self.coaster_timer = 0
@@ -572,8 +572,8 @@ class Game:
 
         # Draw coaster
         for i in range(len(self.coaster.points) - 1):
-            pygame.draw.line(self.screen, (0, 0, 0), (80 * i, 400 - self.coaster.points[i]*  50),
-                              (80 * (i+1), 400 - self.coaster.points[i+1] *  50))
+            pygame.draw.line(self.screen, (0, 0, 0), (1.6 * i, 400 - self.coaster.points[i]*  10),
+                              (1.6 * (i+1), 400 - self.coaster.points[i+1] *  10))
 
         for bullet in self.bullets:
             pygame.draw.rect(self.screen, bullet['color'], bullet['rect'])
