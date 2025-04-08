@@ -100,6 +100,8 @@ class Particle:
         pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
 
 
+
+
 # ----------------- MAIN GAME CLASS --------------------
 class Game:
     def __init__(self):
@@ -152,6 +154,8 @@ class Game:
         # Particles
         self.particles = []
 
+        #Bullets 
+        self.bullets = []
         # Score
         self.score = 0
 
@@ -229,6 +233,10 @@ class Game:
                 if self.state == STATE_INTRO:
                     self.handle_intro_input(event)
                 elif self.state == STATE_GAME:
+                    # Handle game-specific input
+                    if event.key == pygame.K_c:
+                        self.player_shoot(event)
+                
                     if event.key == pygame.K_p:
                         # Toggle pause
                         self.state = STATE_PAUSE
@@ -243,6 +251,30 @@ class Game:
                         # Restart the entire game
                         self.restart_game()
 
+    def player_shoot(self, event):
+        player_pos = self.player_rect.center
+        
+        mouse_pos = pygame.mouse.get_pos()
+        
+        dx = mouse_pos[0] - player_pos[0]
+        dy = mouse_pos[1] - player_pos[1]
+
+        distance = math.hypot(dx, dy)
+        if distance > 0:  
+            dx /= distance
+            dy /= distance
+
+        bullet = {
+            'rect': pygame.Rect(player_pos[0] - 5, player_pos[1] - 5, 10, 10),
+            'velocity': (dx * 300, dy * 300),  # Speed of 300 pixels per second
+            'color': (0, 200, 255)  # Cyan color
+        }
+
+        self.bullets.append(bullet)
+        
+        # We'll need to add code to update and draw projectiles
+        # in update_game() and draw_game() methods
+        
     def handle_intro_input(self, event):
         """
         If we want to let the player type their name or press Enter to start the game.
@@ -317,7 +349,10 @@ class Game:
 
         # 5) Particles
         self.update_particles(dt)
-
+        
+        # Update bullets
+        self.update_bullets(dt)
+        
         # 6) Check if dead
         if self.player_health <= 0:
             self.state = STATE_GAME_OVER
@@ -406,6 +441,21 @@ class Game:
         #         self.player_rect.y = old_y
         #         break
 
+    def update_bullets(self, dt):
+        """
+        Update bullet positions and check for collisions with enemies.
+        """
+        for bullet in self.bullets[:]:
+            bullet['rect'].x += int(bullet['velocity'][0] * dt)
+            bullet['rect'].y += int(bullet['velocity'][1] * dt)
+
+            # Check for collision with enemies
+            for enemy_rect in self.enemies[:]:
+                if rect_rect_collision(bullet['rect'], enemy_rect):
+                    self.enemies.remove(enemy_rect)
+                    self.bullets.remove(bullet)
+                    self.score += 1
+                    
     def update_enemies(self, dt):
         """
         Move enemies downward and check collisions with player.
@@ -504,6 +554,9 @@ class Game:
         for p in self.particles:
             p.draw(self.screen)
 
+        for bullet in self.bullets:
+            pygame.draw.rect(self.screen, bullet['color'], bullet['rect'])
+        
         # HUD (health, score)
         hp_text    = self.font.render(f"HP: {self.player_health}", True, COLOR_WHITE)
         score_text = self.font.render(f"Score: {self.score}", True, COLOR_WHITE)
