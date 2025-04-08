@@ -417,7 +417,7 @@ class Game:
         
         # Calculate the current position on the coaster
         keys = pygame.key.get_pressed()
-        move_x = 0  # Constant forward movement
+        move_x = 1  # Constant forward movement
 
         # Find which segment of the coaster we're on
         segment_width = 80
