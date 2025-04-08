@@ -141,10 +141,10 @@ class Game:
         self.current_frame_index = 0
         self.frame_timer = 0.0
         self.frame_interval = 0.1  # switch frames every 0.1s
-        self.player_rect = pygame.Rect(100, 300, 40, 40)  # bounding box for collision
-        self.player_speed = 200.0
+        self.player_rect = pygame.Rect(100, 200, 40, 40)  # bounding box for collision
+        self.player_speed = 80
         self.player_health = 3
-
+        self.moved = 0
         # Enemies
         self.enemy_image = pygame.Surface((30, 30))
         self.enemy_image.fill(COLOR_ENEMY)
@@ -154,7 +154,9 @@ class Game:
 
         # Particles
         self.particles = []
+        self.vel_y = 0
 
+        self.coaster = rc.Rollercoaster()
         #Bullets 
         self.bullets = []
         # Score
@@ -411,46 +413,49 @@ class Game:
         If you want fancy collisions with platforms or shapes,
         implement that here.
         """
-        old_x = self.player_rect.x
-        old_y = self.player_rect.y
-
+        
+        
+        # Calculate the current position on the coaster
         keys = pygame.key.get_pressed()
-        move_x = 0
-        move_y = 0
-        if keys[pygame.K_w]:
-            move_y = -1
-        if keys[pygame.K_s]:
-            move_y = 1
-        if keys[pygame.K_a]:
-            move_x = -1
-        if keys[pygame.K_d]:
-            move_x = 1
+        move_x = 0  # Constant forward movement
 
-        # Normalize diagonals
-        length = math.hypot(move_x, move_y)
-        if length != 0:
-            move_x /= length
-            move_y /= length
+        # Find which segment of the coaster we're on
+        segment_width = 80
+        current_segment = min(len(self.coaster.points) - 2, self.player_rect.x // segment_width)
 
+        # Calculate interpolation point within segment (0.0 to 1.0)
+        segment_progress = (self.player_rect.x % segment_width) / segment_width
+
+        # Linear interpolation between two points on the coaster
+        start_y = 400 - self.coaster.points[current_segment] * 50
+        end_y = 400 - self.coaster.points[current_segment + 1] * 50
+        target_y = start_y + segment_progress * (end_y - start_y)
+
+        # Smooth movement toward the target y position
+        self.player_rect.y += (target_y - self.player_rect.y) * 0.2
+
+        # Handle jump with gravity
+        if keys[pygame.K_SPACE] and abs(self.player_rect.y - target_y) < 5:
+            self.vel_y = -15
+
+        # Apply gravity
+        self.vel_y += 0.8
+        self.player_rect.y += self.vel_y
+
+        # Don't fall below the coaster
+        if self.player_rect.y > target_y:
+            self.player_rect.y = target_y
+            self.vel_y = 0
+
+        # Move forward
         self.player_rect.x += int(move_x * self.player_speed * dt)
-        self.player_rect.y += int(move_y * self.player_speed * dt)
+        self.moved += int(move_x * self.player_speed * dt)
 
-        # Keep in screen
-        if self.player_rect.left < 0:
-            self.player_rect.left = 0
-        elif self.player_rect.right > WINDOW_WIDTH:
+        # Keep player within screen bounds
+        if self.player_rect.right > WINDOW_WIDTH:
             self.player_rect.right = WINDOW_WIDTH
         if self.player_rect.top < 0:
             self.player_rect.top = 0
-        elif self.player_rect.bottom > WINDOW_HEIGHT:
-            self.player_rect.bottom = WINDOW_HEIGHT
-
-        # If you want collisions vs. world shapes, you'd do it here:
-        # for shape in self.world_shapes:
-        #     if rect_rect_collision(self.player_rect, shape.rect):
-        #         self.player_rect.x = old_x
-        #         self.player_rect.y = old_y
-        #         break
 
     def update_bullets(self, dt):
         """
