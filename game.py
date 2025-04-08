@@ -366,8 +366,8 @@ class Game:
             self.state_time = 0.0
 
         self.coaster_timer += dt
-        if(self.coaster_timer > 0.5):
-            self.coaster.update()
+        if(self.coaster_timer > 0.05):
+            print(self.coaster.update())
             print(self.coaster_timer)
             self.coaster_timer = 0
 
@@ -417,7 +417,7 @@ class Game:
         
         # Calculate the current position on the coaster
         keys = pygame.key.get_pressed()
-        move_x = 1  # Constant forward movement
+        move_x = 0  # Constant forward movement
 
         # Find which segment of the coaster we're on
         segment_width = 80
@@ -427,9 +427,9 @@ class Game:
         segment_progress = (self.player_rect.x % segment_width) / segment_width
 
         # Linear interpolation between two points on the coaster
-        start_y = 400 - self.coaster.points[current_segment] * 50
-        end_y = 400 - self.coaster.points[current_segment + 1] * 50
-        target_y = start_y + segment_progress * (end_y - start_y)
+        start_y = 400 - self.coaster.points[current_segment] * 40
+        end_y = 400 - self.coaster.points[current_segment + 1] * 40
+        target_y = start_y + segment_progress * (end_y - start_y) - 30
 
         # Smooth movement toward the target y position
         self.player_rect.y += (target_y - self.player_rect.y) * 0.2
@@ -572,8 +572,8 @@ class Game:
 
         # Draw coaster
         for i in range(len(self.coaster.points) - 1):
-            pygame.draw.line(self.screen, (0, 0, 0), (1.6 * i, 400 - self.coaster.points[i]*  10),
-                              (1.6 * (i+1), 400 - self.coaster.points[i+1] *  10))
+            pygame.draw.line(self.screen, (0, 0, 0), (80 * i, 400 - self.coaster.points[i]*  30),
+                              (80.6 * (i+1), 400 - self.coaster.points[i+1] *  30))
 
         for bullet in self.bullets:
             pygame.draw.rect(self.screen, bullet['color'], bullet['rect'])
