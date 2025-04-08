@@ -25,13 +25,3 @@ class Rollercoaster:
         print(curPoint, newPoint)
         self.points.append(newPoint)
         return self.points
-
-    #def draw(self, screen):
-    #    pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
-
-
-rc = Rollercoaster()
-print(rc.points)
-for _ in range(10):
-    rc.update()
-print(rc.points)
