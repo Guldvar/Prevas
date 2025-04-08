@@ -17,11 +17,10 @@ class Rollercoaster:
                 newPoint = 0
             elif r < 0.60:
                 newPoint = curPoint
-            elif r < 0.80:
+            elif (r < 0.80 and curPoint != 1) or curPoint == 3:
                 newPoint = curPoint - 1
             else:
                 newPoint = curPoint + 1
         
-        print(curPoint, newPoint)
         self.points.append(newPoint)
         return self.points

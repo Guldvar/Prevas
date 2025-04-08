@@ -2,6 +2,7 @@ import pygame
 import math
 import sys
 import random
+import rollercoaster as rc
 
 # ------------------------------------------------
 # BIG, ALL-IN-ONE PYGAME BOILERPLATE:
@@ -158,6 +159,10 @@ class Game:
         self.bullets = []
         # Score
         self.score = 0
+
+        # Rollercoaster
+        self.coaster = rc.Rollercoaster()
+        self.coaster_timer = 0
 
         # Font for text rendering
         self.font = pygame.font.SysFont(None, 24)
@@ -358,6 +363,12 @@ class Game:
             self.state = STATE_GAME_OVER
             self.state_time = 0.0
 
+        self.coaster_timer += dt
+        if(self.coaster_timer > 1):
+            self.coaster.update()
+            print(self.coaster_timer)
+            self.coaster_timer = 0
+
     def update_pause(self, dt):
         """
         Pause logic—basically do nothing except wait for unpause input.
@@ -553,6 +564,11 @@ class Game:
         # Draw particles
         for p in self.particles:
             p.draw(self.screen)
+
+        # Draw coaster
+        for i in range(len(self.coaster.points) - 1):
+            pygame.draw.line(self.screen, (0, 0, 0), (80 * i, 400 - self.coaster.points[i]*  50),
+                              (80 * (i+1), 400 - self.coaster.points[i+1] *  50))
 
         for bullet in self.bullets:
             pygame.draw.rect(self.screen, bullet['color'], bullet['rect'])
